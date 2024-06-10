@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bluetooth Data Receiver</title>
+    <script>
+        async function connect() {
+            const device = await navigator.bluetooth.requestDevice({
+                filters: [{ services: ['968796c0-7de0-4669-8e55-dfe7200287bd'] }]
+            });
+            const server = await device.gatt.connect();
+            const service = await server.getPrimaryService('968796c0-7de0-4669-8e55-dfe7200287bd');
+            const characteristic = await service.getCharacteristic('1e2e788d-a708-4b0a-a114-2a1e6d6d0b14');
+            characteristic.addEventListener('characteristicvaluechanged', event => {
+                const value = event.target.value;
+                // Parse and display received data
+                const data = new TextDecoder().decode(value);
+                document.getElementById('data').innerText = data;
+            });
+            await characteristic.startNotifications();
+        }
+    </script>
+</head>
+<body>
+    <button onclick="connect()">Connect</button>
+    <div id="data"></div>
+</body>
+</html>
